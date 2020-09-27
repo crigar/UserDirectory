@@ -39,7 +39,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        
+        log::info($request->all());
         $user = new User;
         $user->job_title = $request->input('job_title');
         $user->email = $request->email;
@@ -61,9 +61,18 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function showUserById( $document)
     {
-        //
+        $response = array(
+            "success" => false,
+            "user" => null,
+        );
+        $user = User::where('document', $document)->first();
+        if ($user != null) {
+            $response['success'] = true;
+            $response['user'] = $user;
+        }
+        return $response;
     }
 
     /**
@@ -99,9 +108,19 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        //
+        User::destroy($id);
+    }
+
+     /**
+     * Remove tall
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function removeAll()
+    {
+        User::truncate();
     }
 
     /**
@@ -111,20 +130,24 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
+        log::info($request->all());
         $response = array(
             "success" => false,
         );
         $username = $request->input('username');
         $pass = $request->input('pass');
         $user = User::where('username', $username)->first();
-        $userId = $user->id;
-        if (Hash::check($pass, $user->pass)) {
-            $token = Str::random(60);
-            $user = User::find($user->id);
-            $user->token = $token;
-            $user->save();
-            $response['success'] = true;
-            $response['token'] = $token;
+        
+        if ($user != null) {
+            if (Hash::check($pass, $user->pass)) {
+                $userId = $user->id;
+                $token = Str::random(60);
+                $user = User::find($user->id);
+                $user->token = $token;
+                $user->save();
+                $response['success'] = true;
+                $response['token'] = $token;
+            }
         }
         return response()->json($response);
     }
@@ -164,4 +187,6 @@ class UserController extends Controller
         $response['users'] = $users;
         return response()->json($response);
     }
+
+   
 }

@@ -26,5 +26,12 @@ Route::group(['prefix' => 'users'], function() {
     Route::post('/logout', 'UserController@logout');
     Route::post('/search', 'UserController@search');
     Route::post('/update', 'UserController@update');
+    Route::get('/document/{document}', 'UserController@showUserById');
+    Route::get('/remove-users', 'UserController@removeAll');
+    Route::get('/destroy/{id}', 'UserController@destroy');
 });
 
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
